@@ -1,6 +1,6 @@
 # Auto-Documentation Rule
 
-When discussing or implementing any of the following for this deadline reminder bot project, automatically append the information to `documentation.md`:
+When discussing or implementing any of the following for this deadline reminder bot project, automatically append the information to `./md_notes_files/documentation.md`:
 
 ## Capture These Development Items:
 - API integrations and endpoints used

@@ -3,3 +3,6 @@ env-vars/.env
 __pycache__/
 *.pyc
 .DS_Store
+venv39/
+lambda-deployment/
+bot-deployment.zip
