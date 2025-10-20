@@ -16,16 +16,16 @@ I wanted to keep track of upcoming deadlines for my classes while learning more 
 
 ## ✨ Features
 
-**Automated Scheduling:** Runs daily at 8 AM using AWS EventBridge triggers with zero manual intervention.
-**Smart Filtering:** Only shows assignments due within 3 days, filtering out completed tasks automatically.
-**Rich Notifications:** Sends formatted Discord messages with class icons, assignment types, due dates, and notes.
-**Dual Environment Support:** Works seamlessly in both local development and AWS cloud environments.
-**Secure Credential Management:** Uses AWS Parameter Store for secure token storage with automatic environment detection.
-**Structured Logging:** JSON-formatted CloudWatch logs with clear status indicators for monitoring and alerting.
-**AI-Assisted Development:** Integrated Amazon Q Developer for code review, security analysis, and documentation.
-**Production Ready:** Configured for serverless deployment with proper error handling and fault tolerance.
-**Performance Optimized:** Async/await implementation for non-blocking API operations and efficient resource usage.
-**CWE-532 Compliant:** No sensitive data exposure in logs with least-privilege IAM permissions.
+- **Automated Scheduling:** Runs daily at 8 AM using AWS EventBridge triggers with zero manual intervention.
+- **Smart Filtering:** Only shows assignments due within 3 days, filtering out completed tasks automatically.
+- **Rich Notifications:** Sends formatted Discord messages with class icons, assignment types, due dates, and notes.
+- **Dual Environment Support:** Works seamlessly in both local development and AWS cloud environments.
+- **Secure Credential Management:** Uses AWS Parameter Store for secure token storage with automatic environment detection.
+- **Structured Logging:** JSON-formatted CloudWatch logs with clear status indicators for monitoring and alerting.
+- **AI-Assisted Development:** Integrated Amazon Q Developer for code review, security analysis, and documentation.
+- **Production Ready:** Configured for serverless deployment with proper error handling and fault tolerance.
+- **Performance Optimized:** Async/await implementation for non-blocking API operations and efficient resource usage.
+- **CWE-532 Compliant:** No sensitive data exposure in logs with least-privilege IAM permissions.
 
 
 
