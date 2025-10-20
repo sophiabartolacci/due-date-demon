@@ -1,16 +1,11 @@
-from notion_client import AsyncClient
-from datetime import datetime, date, timedelta 
-import os, discord, asyncio
+
+import boto3, discord, json, logging, os, traceback
+from datetime import datetime, date, timedelta, timezone
 from dotenv import load_dotenv
+from notion_client import AsyncClient
 
-'''
-    command to run the bot.py file: source venv/bin/activate && python bot.py
-'''
-
-# Setup
-load_dotenv('.env')
-notion = AsyncClient(auth=os.environ["NOTION_TOKEN"])
-database_id = os.environ["NOTION_DATABASE_ID"]
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 intents = discord.Intents.default()
 discord_client = discord.Client(intents=intents)
@@ -35,13 +30,43 @@ assignment_type_icons = {
     "Project": "📐"
 }
 
-async def db_setup() -> dict:
-    '''
-    Retrieves the database schema properties from Notion
-    Returns: dict - Database properties structure
-    '''
-    database = await notion.databases.retrieve(database_id)
-    return database["properties"]
+def load_credentials():
+    try:
+        if os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+            # Running in AWS Lambda
+            ssm = boto3.client('ssm')
+            
+            return {
+                "notion_token": ssm.get_parameter(Name='/daily-deadline/notion-token', WithDecryption=True)['Parameter']['Value'],
+                "database_id": ssm.get_parameter(Name='/daily-deadline/notion-database-id', WithDecryption=True)['Parameter']['Value'],
+                "discord_token": ssm.get_parameter(Name='/daily-deadline/discord-token', WithDecryption=True)['Parameter']['Value'],
+                "discord_channel_id": ssm.get_parameter(Name='/daily-deadline/discord-channel-id', WithDecryption=True)['Parameter']['Value']
+            }
+        else:
+            load_dotenv('.env')  
+            return {
+                "notion_token": os.environ["NOTION_TOKEN"],
+                "database_id": os.environ["NOTION_DATABASE_ID"], 
+                "discord_token": os.environ["DISCORD_TOKEN"],
+                "discord_channel_id": os.environ["DISCORD_CHANNEL_ID"]
+            }
+    except Exception as e:
+        logger.error("Failed to load credentials")
+        raise RuntimeError("Configuration error: Unable to load required credentials") from e
+
+# Global setup
+creds = load_credentials()
+notion = AsyncClient(auth=creds['notion_token'])
+database_id = creds['database_id']
+
+# for future use?
+# async def db_setup() -> dict:
+#     '''
+#     Retrieves the database schema properties from Notion
+#     Returns: dict - Database properties structure
+#     '''
+#     database = await notion.databases.retrieve(database_id)
+#     return database["properties"]
 
 def format_date(date_str: str) -> str:
     '''
@@ -71,7 +96,6 @@ def format_date(date_str: str) -> str:
         formatted_time = f"{hour - 12}:{minute:02d}PM"
     
     return f"{month}/{day} {formatted_time}"
-
 
 def get_three_days_out() -> date:
     '''
@@ -148,7 +172,7 @@ async def extract_assignment_info() -> list:
 
         # add each entry to a list of all assignments
         all_assignments.append(entry_info)
-    print(all_assignments)
+    logger.info(f"Successfully retrieved {len(all_assignments)} assignments from Notion")
     return all_assignments
 
 async def format_message() -> str:
@@ -188,20 +212,101 @@ async def format_message() -> str:
 def send_message():
     '''
     Sends the formatted assignment message to Discord channel
-    Uses environment variables for Discord token and channel ID
+    Uses global credentials loaded from Parameter Store or .env file
     '''
-    token = os.environ["DISCORD_TOKEN"]
-    channel_id = int(os.environ["DISCORD_CHANNEL_ID"])
-    
+    discord_token = creds['discord_token']
+    channel_id = int(creds['discord_channel_id'])
+
     client = discord.Client(intents=discord.Intents.default())
     
     @client.event
     async def on_ready():
-        channel = client.get_channel(channel_id)
-        await channel.send(await format_message())
-        await client.close()
+        try:
+            logger.info(f"Discord client connected successfully")
+            channel = client.get_channel(channel_id)
+            
+            if not channel:
+                raise ValueError(f"Discord channel {channel_id} not found or bot lacks access")
+            
+            message = await format_message()
+            await channel.send(message)
+            
+            logger.info(f"Message sent successfully to Discord channel {channel_id}")
+            await client.close()
+            
+        except Exception as e:
+            logger.error(f"Discord send failed: {str(e)}")
+            await client.close()
+            raise
     
-    client.run(token)
+    client.run(discord_token)
+
+def lambda_handler(event, context):
+    '''
+    AWS Lambda entry point
+    Parameters:
+        event: EventBridge trigger data (empty dict for scheduled events)
+        context: Lambda runtime information
+    Returns:
+        dict: Status response for Lambda
+    '''
+    # Structured logging for CloudWatch
+    log_context = {
+        "function_name": context.function_name,
+        "request_id": context.aws_request_id,
+        "remaining_time_ms": context.get_remaining_time_in_millis()
+    }
+    
+    logger.info(json.dumps({
+        "event": "lambda_start",
+        "status": "INFO",
+        "message": "Deadline reminder bot execution started",
+        **log_context
+    }))
+    
+    try:
+        logger.info(json.dumps({
+            "event": "bot_execution",
+            "status": "INFO", 
+            "message": "Starting Discord message send process",
+            **log_context
+        }))
+        
+        send_message()
+        
+        logger.info(json.dumps({
+            "event": "lambda_success",
+            "status": "SUCCESS",
+            "message": "Deadline reminder sent successfully to Discord",
+            **log_context
+        }))
+        
+        return {
+            "statusCode": 200,
+            "status": "success",
+            "message": "Deadline reminder sent successfully",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+        
+    except Exception as e:
+        error_details = {
+            "event": "lambda_error",
+            "status": "ERROR",
+            "message": f"Lambda execution failed: {str(e)}",
+            "error_type": type(e).__name__,
+            "traceback": traceback.format_exc(),
+            **log_context
+        }
+        
+        logger.error(json.dumps(error_details))
+        
+        return {
+            "statusCode": 500,
+            "status": "error",
+            "message": str(e),
+            "error_type": type(e).__name__,
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
 
 if __name__ == "__main__":
     send_message()

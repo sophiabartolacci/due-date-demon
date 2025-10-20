@@ -1,3 +1,4 @@
 notion-client
 discord.py
 python-dotenv
+boto3

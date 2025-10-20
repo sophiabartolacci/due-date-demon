@@ -1,0 +1,6 @@
+{
+  "Name": "daily-deadline-reminder",
+  "Description": "Trigger deadline reminder bot daily at 8 AM EST",
+  "ScheduleExpression": "cron(0 13 * * ? *)",
+  "State": "ENABLED"
+}
