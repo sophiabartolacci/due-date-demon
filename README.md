@@ -1,4 +1,4 @@
-# Automated Deadline Reminder Bot
+# Due Date Demon
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://python.org)
 [![AWS Lambda](https://img.shields.io/badge/AWS-Lambda-orange.svg)](https://aws.amazon.com/lambda/)

@@ -1,4 +1,4 @@
-# AWS Setup Guide - Deadline Reminder Bot
+# AWS Setup Guide - Due Date Demon
 
 ## Prerequisites
 - AWS account created
@@ -44,10 +44,11 @@ aws iam attach-role-policy --role-name lambda-execution-role --policy-arn arn:aw
 
 ### Create Lambda Function
 ```bash
+# Replace ACCOUNT_ID with your AWS account ID
 aws lambda create-function \
   --function-name deadline-reminder-bot \
   --runtime python3.9 \
-  --role arn:aws:iam::507881106119:role/lambda-execution-role \
+  --role arn:aws:iam::ACCOUNT_ID:role/lambda-execution-role \
   --handler bot.lambda_handler \
   --zip-file fileb://bot-deployment.zip \
   --timeout 60 \
@@ -56,15 +57,15 @@ aws lambda create-function \
 
 ### Set Up EventBridge Scheduling
 ```bash
-# Create daily 8 AM schedule
+# Create daily 8 AM EST schedule (13:00 UTC)
 aws events put-rule \
   --name daily-deadline-reminder \
-  --schedule-expression "cron(0 8 * * ? *)"
+  --schedule-expression "cron(0 13 * * ? *)"
 
-# Connect to Lambda
+# Connect to Lambda (replace ACCOUNT_ID with your AWS account ID)
 aws events put-targets \
   --rule daily-deadline-reminder \
-  --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:507881106119:function:deadline-reminder-bot"
+  --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:ACCOUNT_ID:function:deadline-reminder-bot"
 
 # Give EventBridge permission to invoke Lambda
 aws lambda add-permission \
@@ -77,13 +78,30 @@ aws lambda add-permission \
 ## 4. Ongoing Operations
 
 Use the Makefile for regular operations:
-- `make package` - Repackage code
+- `make setup` - Set up local development environment
+- `make run` - Run bot locally for testing
+- `make package` - Create Lambda deployment package
 - `make deploy` - Update Lambda function code
+- `make schedule-create` - Set up EventBridge scheduling
+- `make schedule-disable` - Disable daily schedule
+- `make schedule-enable` - Re-enable daily schedule
 
-## 5. Future Enhancements
-- [ ] Set up Parameter Store for secrets
+## 5. Parameter Store Setup (Required)
+
+The bot requires these parameters to be set in AWS Parameter Store:
+
+```bash
+# Set up your credentials in Parameter Store
+aws ssm put-parameter --name "/daily-deadline/notion-token" --value "YOUR_NOTION_TOKEN" --type "SecureString"
+aws ssm put-parameter --name "/daily-deadline/notion-database-id" --value "YOUR_DATABASE_ID" --type "SecureString"
+aws ssm put-parameter --name "/daily-deadline/discord-token" --value "YOUR_DISCORD_TOKEN" --type "SecureString"
+aws ssm put-parameter --name "/daily-deadline/discord-channel-id" --value "YOUR_CHANNEL_ID" --type "SecureString"
+```
+
+## 6. Future Enhancements
 - [ ] Configure DynamoDB for multi-user support
 - [ ] Implement Infrastructure as Code (Terraform/CDK)
+- [ ] Add CloudWatch alarms for monitoring
 
 ## Security Notes
 - Never commit AWS credentials to Git
