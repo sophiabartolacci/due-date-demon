@@ -36,7 +36,7 @@ I wanted to keep track of upcoming deadlines while learning more about AWS after
 Python 3.9+          # Primary language with async/await
 AWS Lambda           # Serverless compute platform
 Notion API           # Database integration
-Discord.py           # Bot framework
+Discord.py           # Bot framework 
 Boto3               # AWS SDK
 
 # Development Tools
