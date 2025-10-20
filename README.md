@@ -12,7 +12,7 @@ A serverless bot that automatically checks my Notion database for upcoming deadl
 
 ## 🤔 Why I Built This
 
-I wanted to keep track of upcoming deadlines while learning more about AWS after working with it during my co-op. I was inspired by how Slack gives daily meeting schedules, which I found really useful and gave me a lookahead of what my day would look like. What started as a simple automation project turned into a production-ready system with proper security, monitoring, and CI/CD.
+I wanted to keep track of upcoming deadlines for my classes while learning more about AWS after working with it during my co-op. I was inspired by how Slack gives daily meeting schedules, which I found really useful and gave me a lookahead of what my day would look like. What started as a simple automation project turned into a production-ready system with proper security, monitoring, and CI/CD.
 
 ## ✨ Features
 
