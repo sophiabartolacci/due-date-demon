@@ -150,8 +150,13 @@ async def extract_assignment_info() -> list:
     results = assignment_info["results"]
     for entry in results:
         assignment_name = entry['properties']['Assignment']['title'][0]['plain_text']
-        assignment_class = entry['properties']['Class']['select']['name']
-        assignment_type = entry['properties']['Type']['select']['name']
+        
+        class_select = entry['properties']['Class']['select']
+        assignment_class = class_select['name'] if class_select else 'Unknown'
+        
+        type_select = entry['properties']['Type']['select']
+        assignment_type = type_select['name'] if type_select else 'Assignment'
+        
         assignment_due_date = entry['properties']['Due Date']['date']['start']
         notes_list = entry['properties']['Notes']['rich_text']
         

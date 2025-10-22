@@ -783,3 +783,17 @@ Table: daily-deadline-users
 **Notes:** Schedule runs at 14:00 UTC (9 AM EST). Use make schedule-disable/enable to control scheduling.
 
 ---
+## 2025-01-22 - Null Field Handling Bug Fix
+**Type:** Bug Fix
+**Description:** Fixed TypeError when Notion database entries have empty Type or Class select fields
+**Implementation:** Added null checks before accessing select field names, with fallback values 'Unknown' for class and 'Assignment' for type
+**Notes:** Prevents bot crashes when database entries are incomplete, improves robustness for production use
+
+---
+## 2025-01-22 - Production Deployment of Null Handling Fix
+**Type:** Deployment
+**Description:** Successfully deployed null field handling fix to AWS Lambda production environment
+**Implementation:** Updated Lambda function code with null checks for Notion database select fields
+**Notes:** Bot now handles incomplete database entries without crashing, improving production reliability
+
+---
