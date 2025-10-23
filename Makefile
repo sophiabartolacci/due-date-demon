@@ -25,6 +25,18 @@ install:
 run:
 	source $(VENV_DIR)/bin/activate && python bot.py
 
+# Test bot functionality
+.PHONY: test-bot
+test-bot:
+	@echo "Testing bot functionality..."
+	source $(VENV_DIR)/bin/activate && python test_bot.py
+
+# Safe deployment with tests
+.PHONY: test-deploy
+test-deploy: test-bot
+	@echo "Tests passed, deploying..."
+	make deploy
+
 # Test environment setup
 .PHONY: test
 test:

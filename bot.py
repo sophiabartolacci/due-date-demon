@@ -152,9 +152,13 @@ async def extract_assignment_info() -> list:
         assignment_name = entry['properties']['Assignment']['title'][0]['plain_text']
         
         class_select = entry['properties']['Class']['select']
+        if not class_select:
+            logger.warning(f"Entry '{assignment_name}' has empty Class field")
         assignment_class = class_select['name'] if class_select else 'Unknown'
         
         type_select = entry['properties']['Type']['select']
+        if not type_select:
+            logger.warning(f"Entry '{assignment_name}' has empty Type field")
         assignment_type = type_select['name'] if type_select else 'Assignment'
         
         assignment_due_date = entry['properties']['Due Date']['date']['start']
