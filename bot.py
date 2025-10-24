@@ -59,15 +59,6 @@ creds = load_credentials()
 notion = AsyncClient(auth=creds['notion_token'])
 database_id = creds['database_id']
 
-# for future use?
-# async def db_setup() -> dict:
-#     '''
-#     Retrieves the database schema properties from Notion
-#     Returns: dict - Database properties structure
-#     '''
-#     database = await notion.databases.retrieve(database_id)
-#     return database["properties"]
-
 def format_date(date_str: str) -> str:
     '''
     Converts ISO datetime string to M/D format, with time if specified
@@ -113,8 +104,8 @@ async def filter_db() -> dict:
     '''
     three_days_out = get_three_days_out().isoformat()
     
-    assignment_info = await notion.databases.query(
-        database_id=database_id,
+    assignment_info = await notion.data_sources.query(
+        data_source_id=database_id,
         filter={
             "and": [
                 {

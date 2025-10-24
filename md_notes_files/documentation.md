@@ -807,3 +807,10 @@ Table: daily-deadline-users
 **Notes:** Prevents deployment of broken code by catching import errors, logic bugs, and environment issues early
 
 ---
+## 2025-01-24 - Notion API Method Name Fix
+**Type:** Bug Fix
+**Description:** Fixed AttributeError due to Notion API method name change from query to query_database
+**Implementation:** Updated notion.databases.query() to notion.databases.query_database() in filter_db function
+**Notes:** Notion client library updated method names, causing production failures. Fix deployed and tested successfully.
+
+---

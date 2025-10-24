@@ -119,6 +119,24 @@ def test_null_handling():
         print(f"❌ Null field handling test failed: {e}")
         return False
 
+def test_notion_api_methods():
+    """Test that Notion client has expected API methods"""
+    try:
+        from notion_client import AsyncClient
+        
+        # Create client instance to check methods
+        client = AsyncClient(auth="dummy-token")
+        
+        # Check that required methods exist
+        assert hasattr(client.data_sources, 'query'), "data_sources.query method missing"
+        assert hasattr(client.databases, 'retrieve'), "databases.retrieve method missing"
+        
+        print("✅ Notion API methods test passed")
+        return True
+    except Exception as e:
+        print(f"❌ Notion API methods test failed: {e}")
+        return False
+
 if __name__ == "__main__":
     print("🧪 Running dry-run tests...")
     
@@ -127,7 +145,8 @@ if __name__ == "__main__":
         test_date_formatting,
         test_credential_loading,
         test_lambda_context,
-        test_null_handling
+        test_null_handling,
+        test_notion_api_methods
     ]
     
     passed = 0
